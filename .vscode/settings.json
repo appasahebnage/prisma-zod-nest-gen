@@ -1,0 +1,25 @@
+{
+    "cSpell.words": [
+        "asins",
+        "Clickhouse",
+        "Collabstr",
+        "datamodel",
+        "dmmf",
+        "Dtos",
+        "hypelinks",
+        "Hypestore",
+        "Hypestores",
+        "hypetree",
+        "pincode",
+        "presigner",
+        "PUMBLE",
+        "roundforest",
+        "TikTok"
+    ],
+    "[typescript]": {
+        "editor.tabSize": 2,
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
+        "editor.formatOnSave": true
+    },
+    "files.eol": "\n",
+}

@@ -1,0 +1,38 @@
+{
+  "name": "prisma-zod-nest-gen",
+  "version": "0.0.0",
+  "private": true,
+  "main": "dist/generator.js",
+  "bin": {
+    "prisma-zod-nest-gen": "dist/bin.js"
+  },
+  "scripts": {
+    "dev": "echo 'Add dev script here'",
+    "build": "rm -fr dist && tsc",
+    "watch": "rm -fr dist && tsc -w",
+    "test": "echo 'Add test script here'",
+    "lint": "echo 'Add lint script here'"
+  },
+  "dependencies": {
+    "@nestjs/common": "^11.0.1",
+    "@prisma/client": "^6.2.1",
+    "@prisma/generator-helper": "^6.2.1",
+    "@prisma/internals": "^6.2.1",
+    "change-case": "^5.4.4",
+    "pluralize": "8.0.0",
+    "prettier": "^3.4.2",
+    "ts-morph": "^25.0.0",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "@semantic-release/changelog": "^6.0.3",
+    "@semantic-release/git": "^10.0.1",
+    "@types/jest": "^29.5.14",
+    "@types/lodash": "^4.17.14",
+    "@types/node": "^22.10.10",
+    "jest": "^29.7.0",
+    "prisma": "^6.2.1",
+    "ts-jest": "^29.2.5",
+    "typescript": "^5.7.3"
+  }
+}
