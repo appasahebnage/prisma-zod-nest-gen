@@ -177,7 +177,7 @@ export class GenerateDto {
 
     const filePath = path.resolve(dirPath, fileName);
     const sourceFile = this.project.createSourceFile(filePath, undefined, {
-      overwrite: false,
+      overwrite: true,
     });
 
     sourceFile.addImportDeclarations([
