@@ -11,8 +11,7 @@
     "build": "rm -fr dist && tsc",
     "watch": "rm -fr dist && tsc -w",
     "test": "echo 'Add test script here'",
-    "lint": "echo 'Add lint script here'",
-    "postinstall": "npm run build"
+    "lint": "echo 'Add lint script here'"
   },
   "dependencies": {
     "@nestjs/common": "^11.0.1",
