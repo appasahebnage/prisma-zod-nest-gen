@@ -43,20 +43,18 @@ generatorHandler({
     const generateDto = new GenerateDto(dmmfDocument, project, outputDir);
     generateDto.generate();
 
-    for (const sourceFile of project.getSourceFiles()) {
-      sourceFile
-        .fixMissingImports()
-        .organizeImports()
-        .fixUnusedIdentifiers()
-        .formatText();
-    }
-
+    // Combine file operations in one loop to optimize iteration over source files.
+    const sourceFiles = project.getSourceFiles();
     try {
-      for (const file of project.getSourceFiles()) {
-        // file.formatText({ indentSize: 2, trimTrailingWhitespace: true });
+      for (const file of sourceFiles) {
+        file
+          .fixMissingImports()
+          .organizeImports()
+          .fixUnusedIdentifiers()
+          .formatText();
         const fileContent = file.getFullText();
 
-        // Format the file content
+        // Format the file content using prettier
         const formattedContent = await prettier.format(fileContent, {
           singleQuote: true,
           trailingComma: "none",
@@ -64,13 +62,14 @@ generatorHandler({
           parser: "typescript",
         });
 
-        // Update the source file with the formatted content
+        // Replace the file text with the formatted content
         file.replaceWithText(formattedContent);
       }
       await project.save();
     } catch (e) {
       console.error(
-        "Error: unable to write files for nestjs-prisma-graphql-crud-gen"
+        "Error: unable to write files for nestjs-prisma-graphql-crud-gen",
+        e
       );
       throw e;
     }

@@ -1,8 +1,6 @@
-import { camelCase, kebabCase, snakeCase } from "lodash";
+import { kebabCase, } from "lodash";
 import * as path from "node:path";
 import {
-  EnumMemberStructure,
-  OptionalKind,
   Project,
   VariableDeclarationKind,
 } from "ts-morph";
