@@ -297,11 +297,11 @@ export class GenerateDto {
     }
 
     if (isComplete && field.relationName && !field.isList) {
-      zodType = `${field.type}Dto`;
+      zodType = `z.lazy(() => ${field.type}Dto)`;
     }
 
     if (!field.isRequired && !field.isList) {
-      zodType = `z.lazy(() => ${zodType}.nullable())`;
+      zodType = `${zodType}.nullable()`;
     }
 
     return zodType;
