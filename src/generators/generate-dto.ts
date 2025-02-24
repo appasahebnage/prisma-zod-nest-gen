@@ -1,9 +1,6 @@
-import { kebabCase, } from "lodash";
+import { kebabCase } from "lodash";
 import * as path from "node:path";
-import {
-  Project,
-  VariableDeclarationKind,
-} from "ts-morph";
+import { Project, VariableDeclarationKind } from "ts-morph";
 
 import { DMMF } from "@prisma/generator-helper";
 
@@ -304,7 +301,7 @@ export class GenerateDto {
     }
 
     if (!field.isRequired && !field.isList) {
-      zodType = `${zodType}.nullable()`;
+      zodType = `z.lazy(() => ${zodType}.nullable())`;
     }
 
     return zodType;
