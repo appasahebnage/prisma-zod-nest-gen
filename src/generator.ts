@@ -17,7 +17,7 @@ const { version } = require("../package.json");
 
 const prettierConfig: prettier.Options = {
   singleQuote: true,
-  trailingComma: "all",
+  trailingComma: "none",
   printWidth: 120,
   parser: "typescript",
 };
