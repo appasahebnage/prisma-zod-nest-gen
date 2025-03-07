@@ -31,8 +31,9 @@ export class GenerateDto {
       });
 
       let enumString = `export const ${enumDef.name} = {`;
-      enumDef.values.forEach(({ name: value }) => {
-        enumString += `  ${value}: "${value}",\n`;
+      enumDef.values.forEach((enumValue) => {
+        const mappedValue = enumValue.dbName || enumValue.name;
+        enumString += `  ${enumValue.name}: "${mappedValue}",\n`;
       });
       enumString += `} as const;\n\n`;
       enumString += `export type ${enumDef.name} = (typeof ${enumDef.name})[keyof typeof ${enumDef.name}];\n`;
@@ -68,7 +69,24 @@ export class GenerateDto {
           prefix: "update",
           suffix: "request",
           filterTag: "@update",
-          transform: (dto: string) => `${dto}.pick({%content%})`,
+          transform: (dto: string) => `${dto}.pick({%content%}).partial()`,
+        },
+        {
+          prefix: "list",
+          suffix: "request",
+          transform: (dto: string, model: DMMF.Model) => {
+            const orderByFields = model.fields
+              .filter((field) => field.documentation?.includes("@orderBy"))
+              .map((field) => `"${field.name}"`)
+              .join(" , ");
+
+            return `z.object({
+              skip: z.number().min(1).max(100).optional().default(1),
+              take: z.number().min(1).max(100).optional().default(20),
+              orderBy: ${orderByFields ? `z.enum([${orderByFields}])` : "z.string()"},
+              sortBy: z.enum(["asc", "desc"]).optional().default("asc")
+            })`;
+          },
         },
         {
           prefix: "list",
@@ -164,7 +182,12 @@ export class GenerateDto {
   private generateSpecializedDto(
     model: DMMF.Model,
     dirPath: string,
-    config: any
+    config: {
+      prefix?: string;
+      suffix?: string;
+      filterTag?: string;
+      transform: (dto: string, model?: DMMF.Model) => string;
+    }
   ) {
     const fileName = config.prefix
       ? `${config.prefix}-${kebabCase(model.name)}-${config.suffix}.dto.ts`
@@ -206,9 +229,13 @@ export class GenerateDto {
       "Dto",
     ].join("");
 
-    const initializer = config
-      .transform(`${model.name}Dto`)
-      .replace("%content%", schemaContent);
+    const initializer = config.filterTag
+      ? config.transform(`${model.name}Dto`).replace("%content%", schemaContent)
+      : config.transform(`${model.name}Dto`, model);
+
+    // const initializer = config
+    //   .transform(`${model.name}Dto`)
+    //   .replace("%content%", schemaContent);
 
     sourceFile.addVariableStatement({
       declarationKind: VariableDeclarationKind.Const,
@@ -238,6 +265,7 @@ export class GenerateDto {
       `${model.name}Dto`,
       `Create${model.name}RequestDto`,
       `Update${model.name}RequestDto`,
+      `List${model.name}RequestDto`,
       `List${model.name}ResponseDto`,
     ];
 

@@ -1,5 +1,11 @@
 import * as prettier from "prettier";
-import { ModuleKind, Project, ScriptTarget } from "ts-morph";
+import {
+  ModuleKind,
+  Project,
+  ScriptTarget,
+  IndentationText,
+  NewLineKind,
+} from "ts-morph";
 
 import { generatorHandler, GeneratorOptions } from "@prisma/generator-helper";
 import { getDMMF, parseEnvValue } from "@prisma/internals";
@@ -8,6 +14,13 @@ import { GENERATOR_NAME } from "./constants";
 import { GenerateDto } from "./generators/generate-dto";
 
 const { version } = require("../package.json");
+
+const prettierConfig: prettier.Options = {
+  singleQuote: true,
+  trailingComma: "all",
+  printWidth: 120,
+  parser: "typescript",
+};
 
 generatorHandler({
   onManifest() {
@@ -20,9 +33,7 @@ generatorHandler({
   onGenerate: async (options: GeneratorOptions) => {
     const outputDir = parseEnvValue(options.generator.output!);
     if (!outputDir)
-      throw new Error(
-        "No output was specified for nestjs-prisma-graphql-crud-gen"
-      );
+      throw new Error("No output was specified for prisma-zod-nest-gen");
 
     const dataModels = options.datamodel;
     const dmmfDocument = await getDMMF({
@@ -39,38 +50,48 @@ generatorHandler({
         declaration: true,
         importHelpers: true,
       },
+      manipulationSettings: {
+        indentationText: IndentationText.TwoSpaces,
+        newLineKind: NewLineKind.LineFeed,
+      },
     });
+
     const generateDto = new GenerateDto(dmmfDocument, project, outputDir);
     generateDto.generate();
 
-    // Combine file operations in one loop to optimize iteration over source files.
-    const sourceFiles = project.getSourceFiles();
     try {
-      for (const file of sourceFiles) {
+      // Batch process all files
+      const sourceFiles = project.getSourceFiles();
+      const formatPromises = sourceFiles.map(async (file) => {
+        // Basic ts-morph optimizations without heavy formatting
         file
           .fixMissingImports()
-          .organizeImports()
-          .fixUnusedIdentifiers()
-          .formatText();
+          .organizeImports({ ensureNewLineAtEndOfFile: false })
+          .fixUnusedIdentifiers();
+
         const fileContent = file.getFullText();
+        try {
+          // Format with prettier
+          const formattedContent = await prettier.format(
+            fileContent,
+            prettierConfig
+          );
+          file.replaceWithText(formattedContent);
+        } catch (formatError) {
+          console.warn(
+            `Warning: Prettier formatting failed for ${file.getFilePath()}, using unformatted content`,
+            formatError
+          );
+        }
+      });
 
-        // Format the file content using prettier
-        const formattedContent = await prettier.format(fileContent, {
-          singleQuote: true,
-          trailingComma: "none",
-          printWidth: 100,
-          parser: "typescript",
-        });
+      // Wait for all formatting to complete
+      await Promise.all(formatPromises);
 
-        // Replace the file text with the formatted content
-        file.replaceWithText(formattedContent);
-      }
+      // Save all files at once
       await project.save();
     } catch (e) {
-      console.error(
-        "Error: unable to write files for nestjs-prisma-graphql-crud-gen",
-        e
-      );
+      console.error("Error: unable to write files for prisma-zod-nest-gen", e);
       throw e;
     }
   },
