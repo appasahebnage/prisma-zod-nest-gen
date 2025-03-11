@@ -14,7 +14,7 @@
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "lint": "echo 'Add lint script here'",
-    "postinstall": "pnpm run build"
+    "postinstall": "npm run build"
   },
   "dependencies": {
     "@nestjs/common": "^11.0.1",

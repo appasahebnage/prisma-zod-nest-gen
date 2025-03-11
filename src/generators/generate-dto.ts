@@ -31,9 +31,8 @@ export class GenerateDto {
       });
 
       let enumString = `export const ${enumDef.name} = {`;
-      enumDef.values.forEach((enumValue) => {
-        const mappedValue = enumValue.dbName || enumValue.name;
-        enumString += `  ${enumValue.name}: "${mappedValue}",\n`;
+      enumDef.values.forEach(({ name: value }) => {
+        enumString += `  ${value}: "${value}",\n`;
       });
       enumString += `} as const;\n\n`;
       enumString += `export type ${enumDef.name} = (typeof ${enumDef.name})[keyof typeof ${enumDef.name}];\n`;
